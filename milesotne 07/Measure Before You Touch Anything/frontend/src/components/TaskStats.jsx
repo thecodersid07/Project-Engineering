@@ -4,13 +4,21 @@ const TaskStats = ({ refreshTrigger }) => {
   const [stats, setStats] = useState({ total: 0, completed: 0, pending: 0 });
   const [loading, setLoading] = useState(true);
 
-  // BUG: useEffect dependency mistake causing extra re-renders
-  // By omitting the dependency array, this runs on EVERY render!
   useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
     fetch('http://localhost:5000/api/tasks')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+        return res.json();
+      })
       .then(data => {
-        // Assume data.tasks exists (backend sends success: true, count, tasks)
+        if (!isMounted) {
+          return;
+        }
         const tasks = data.tasks || [];
         setStats({
           total: tasks.length,
@@ -21,9 +29,15 @@ const TaskStats = ({ refreshTrigger }) => {
       })
       .catch(err => {
         console.error("Failed to fetch stats");
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       });
-  }); // <-- Missing array here causes infinite loop if parent rerenders or state changes
+
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshTrigger]);
 
   if (loading) return <div>Loading Stats...</div>;
 

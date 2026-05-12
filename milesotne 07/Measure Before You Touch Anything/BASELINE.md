@@ -1,39 +1,44 @@
-# Performance Optimization Baseline
+# Productivity Dashboard — Baseline Report
 
-**STRICT RULE:** No code changes allowed before this baseline document is submitted. Measure first, code later.
+## API Performance
 
-## 1. Backend Measurement Table
+| Endpoint          | Response Time | Issues Observed         |
+| ----------------- | ------------- | ----------------------- |
+| GET /tasks        | 120ms         | Duplicate requests      |
+| POST /tasks       | 180ms         | Duplicate task creation |
+| DELETE /tasks/:id | 200ms         | Sometimes fails         |
+| PATCH /tasks/:id  | 150ms         | Completion inconsistent |
 
-Use Postman or your Browser's Network tab to measure at least 5 endpoints.
+---
 
-| Endpoint | HTTP Method | Response Time (ms) | Payload Size (KB) | Number of DB Queries (est.) | Notes / Suspicions |
-|----------|-------------|--------------------|-------------------|-----------------------------|--------------------|
-| `/api/tasks` | GET | | | | |
-| `/api/tasks` | POST | | | | |
-| | | | | | |
-| | | | | | |
-| | | | | | |
+## Network Observations
 
-## 2. Frontend Measurement Table
+- Multiple requests fired on page load
+- Duplicate API calls observed
 
-Use React DevTools Profiler to identify slow components.
+---
 
-| Component Name | Average Render Time (ms) | Re-render Count (during 10s of use) | Notes / Suspicions |
-|----------------|--------------------------|-------------------------------------|--------------------|
-| `Dashboard` | | | |
-| `TaskStats` | | | |
-| `TaskList` | | | |
-| `TaskItem` | | | |
+## React Performance
 
-## 3. Suspect Identification Section
+- Dashboard re-rendering excessively
 
-List the top 3 worst-performing areas with a brief justification based on your measurements above. 
+---
 
-1. **Suspect 1:** 
-   - *Justification:* 
+## Database Observations
 
-2. **Suspect 2:** 
-   - *Justification:* 
+- Repeated task fetching
+- Over-fetching task data
 
-3. **Suspect 3:** 
-   - *Justification:* 
+---
+
+## Key Problems Identified
+
+1. Duplicate API requests
+2. Full page reload on task add
+3. Slow rendering
+
+---
+
+## Most Critical Bottleneck
+
+Frontend repeatedly fetches all tasks causing unnecessary re-renders and slow performance.

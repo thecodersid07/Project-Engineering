@@ -4,20 +4,23 @@ const taskSchema = mongoose.Schema({
   title: {
     type: String,
     required: true,
-    // BUG: Missing unique constraint causes duplicates
+    trim: true,
+    unique: true,
   },
   description: {
     type: String,
+    trim: true,
   },
   status: {
     type: String,
     default: 'pending',
-    // BUG: No enum validation, can be set to anything
+    enum: ['pending', 'completed'],
+    index: true,
   },
 }, {
   timestamps: true
 });
 
-// BUG: Missing indexing for frequently queried fields like status
+taskSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Task', taskSchema);

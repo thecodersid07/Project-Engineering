@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../prisma');
 
-// SLOW ENDPOINT 1 — Missing index on 'category' column (causing Seq Scan)
 // Product Listing by Category
 router.get('/', async (req, res) => {
   const { category } = req.query;
@@ -12,11 +11,17 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    // This query generates a SELECT * which includes the large 'description' and 'metadata' text/json fields
-    // Without an index on 'category', PostgreSQL will perform a full table scan
     const products = await prisma.product.findMany({
       where: { category },
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        price: true,
+        imageUrl: true,
+        createdAt: true,
+      },
     });
 
     res.json({
